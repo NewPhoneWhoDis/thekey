@@ -10,9 +10,24 @@ public class BlogPost {
     private RenderedContent title;
     private RenderedContent content;
 
+    public BlogPost() {}
+
+    public BlogPost(Long id, String date, RenderedContent title, RenderedContent content) {
+        this.id = id;
+        this.date = date;
+        this.title = title;
+        this.content = content;
+    }
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class RenderedContent {
         private String rendered;
+
+        public RenderedContent() {}
+
+        public RenderedContent(String rendered) {
+            this.rendered = rendered;
+        }
 
         @JsonProperty("rendered")
         public String getRendered() {
