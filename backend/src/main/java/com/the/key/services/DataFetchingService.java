@@ -1,6 +1,7 @@
 package com.the.key.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.the.key.exceptions.ExternalApiException;
 import com.the.key.models.BlogPost;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class DataFetchingService {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Error fetching blog posts: " + e.getMessage());
+            throw new ExternalApiException("Failed to fetch blog posts from external API", e);
         }
         return new BlogPost[0];
     }
