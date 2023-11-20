@@ -11,6 +11,7 @@ interface WebSocketHook {
 
 const useWebSocket = (url: string): WebSocketHook => {
   const [data, setData] = useState<WordCount>({});
+  const [previousData, setPreviousData] = useState<WordCount>({});
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -22,7 +23,10 @@ const useWebSocket = (url: string): WebSocketHook => {
         client.subscribe("/topic/wordcount", (message) => {
           try {
             const parsedData: WordCount = JSON.parse(message.body);
-            setData(parsedData);
+            if (JSON.stringify(parsedData) !== JSON.stringify(previousData)) {
+              setData(parsedData);
+              setPreviousData(parsedData);
+            }
           } catch (e) {
             if (e instanceof Error) {
               console.error("Error parsing the data: ", e.message);

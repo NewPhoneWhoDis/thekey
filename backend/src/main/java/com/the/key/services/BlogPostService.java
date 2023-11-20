@@ -11,9 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +22,7 @@ public class BlogPostService {
     private final SimpMessagingTemplate messagingTemplate;
     @Value("${internate.base.api}")
     private String internetBaseApi;
+    private final Set<Long> lastFetchedPostIds = new HashSet<>();
 
     public BlogPostService(RestTemplate restTemplate, SimpMessagingTemplate messagingTemplate) {
         this.restTemplate = restTemplate;
@@ -43,11 +42,28 @@ public class BlogPostService {
                     ObjectMapper objectMapper = new ObjectMapper();
                     BlogPost[] posts = objectMapper.readValue(jsonResponse, BlogPost[].class);
 
-                    // Process posts
-                    for (BlogPost post : posts) {
-                        Map<String, Integer> wordCount = createWordCountMap(post.getContent().getRendered());
-                        messagingTemplate.convertAndSend("/topic/wordcount", wordCount);
+                    Set<Long> currentFetchedPostIds = new HashSet<>();
+                    boolean isDataNew = false;
+
+                    for (BlogPost post: posts) {
+                        currentFetchedPostIds.add(post.getId());
+                        if(!lastFetchedPostIds.contains(post.getId())) {
+                            isDataNew = true;
+                            break;
+                        }
                     }
+
+                    if(isDataNew) {
+                        lastFetchedPostIds.clear();
+                        lastFetchedPostIds.addAll(currentFetchedPostIds);
+
+                        // Process posts
+                        for (BlogPost post : posts) {
+                            Map<String, Integer> wordCount = createWordCountMap(post.getContent().getRendered());
+                            messagingTemplate.convertAndSend("/topic/wordcount", wordCount);
+                        }
+                    }
+
                 } else {
                     System.out.println("JSON content start pattern not found in the response.");
                 }
