@@ -46,7 +46,7 @@ const useWebSocket = (url: string): WebSocketHook => {
     return () => {
       client.deactivate();
     };
-  }, [url]);
+  }, [url, previousData]);
 
   return { data, error, loading };
 };
