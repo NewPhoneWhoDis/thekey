@@ -1,4 +1,5 @@
-/*import { renderHook, act } from "@testing-library/react-hooks";
+/* Mist gebaut
+import { renderHook, act } from "@testing-library/react-hooks";
 import useWebSocket from "./useWebSocket";
 import { Client } from "@stomp/stompjs";
 import { vi } from "vitest";
